@@ -39,8 +39,14 @@ fun App() {
                     cur = i
                 }
             }
-            var startPoint = cur
+            val startPoint = cur
             var lastOffset = Offset(cur.x, cur.y-1)
+            do {
+                val newPoint = findNextDot(points, lastOffset, cur)
+                drawLine(Color.Black, cur, newPoint)
+                lastOffset = cur
+                cur = newPoint
+            } while(cur != startPoint)
         }
     }
 }
