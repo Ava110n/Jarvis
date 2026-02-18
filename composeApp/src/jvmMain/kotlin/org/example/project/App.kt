@@ -28,31 +28,36 @@ fun App() {
             val pos = it.changes.first().position
             points += pos
         }){
-            if(points.isEmpty())
-                return@Canvas
-
             for (i in points) {
                 drawCircle(Color.Magenta,8.0f,i)
             }
-            var leftpoint = points[0]
+            if(points.size < 3)
+                return@Canvas
+            var cur = points[0]
             for (i in points) {
-                if (i.x < leftpoint.x) {
-                    leftpoint = i
+                if (i.x < cur.x) {
+                    cur = i
                 }
             }
-            var lastOffset = Offset(leftpoint.x, leftpoint.y-1)
-            for (i in points) {
-                angle(lastOffset, leftpoint, i)
-            }
-
-
+            var startPoint = cur
+            var lastOffset = Offset(cur.x, cur.y-1)
         }
     }
-
-
-
-
 }
+
+fun findNextDot(dots: List<Offset>, lastDot: Offset, cur: Offset): Offset{
+    var maxAngle = 0.0f
+    var nextDot = cur
+    for (i in dots) {
+        val a = angle(lastDot, cur, i)
+        if (a >= maxAngle) {
+            maxAngle = a
+            nextDot = i
+        }
+    }
+    return nextDot
+}
+
 
 fun angle(a: Offset, b: Offset, c: Offset): Float{
     val vec1x = a.x - b.x
