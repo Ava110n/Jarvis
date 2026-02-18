@@ -5,6 +5,7 @@ import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.material3.AlertDialog
 import androidx.compose.runtime.*
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
@@ -20,13 +21,24 @@ import kotlin.math.sqrt
 @Composable
 @Preview
 fun App() {
-    var points by remember{mutableStateOf(listOf<Offset>())}
+    val points = remember{mutableStateListOf<Offset>()}
     Row{
         Canvas(Modifier.fillMaxSize().
         background(Color.LightGray).
         onPointerEvent(PointerEventType.Press){
-            val pos = it.changes.first().position
-            points += pos
+            if (it.button?.index == 0) {
+                val pos = it.changes.first().position
+                points += pos
+            } else if (it.button?.index == 1) {
+                val pos = it.changes.first().position
+                for (i in points) {
+                    val dist = (pos.x - i.x).pow(2) +( pos.y - i.y).pow(2)
+                    if (dist < 300) {
+                        points.remove(i)
+                        break
+                    }
+                }
+            }
         }){
             for (i in points) {
                 drawCircle(Color.Magenta,8.0f,i)
@@ -37,13 +49,15 @@ fun App() {
             for (i in points) {
                 if (i.x < cur.x) {
                     cur = i
+                } else if (i.x == cur.x && i.y > cur.y) {
+                    cur = i
                 }
             }
             val startPoint = cur
             var lastOffset = Offset(cur.x, cur.y-1)
             do {
                 val newPoint = findNextDot(points, lastOffset, cur)
-                drawLine(Color.Black, cur, newPoint)
+                drawLine(Color.Black, cur, newPoint, strokeWidth = 5f)
                 lastOffset = cur
                 cur = newPoint
             } while(cur != startPoint)
